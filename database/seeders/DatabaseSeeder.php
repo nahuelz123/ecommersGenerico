@@ -12,12 +12,26 @@ class DatabaseSeeder extends Seeder
      * Seed the application's database.
      */
     public function run(): void
-    {
-        // User::factory(10)->create();
+{
+  /*   $admin = User::create([
+        'name' => 'Admin',
+        'email' => 'admin@admin.com',
+        'password' => bcrypt('1234'),
+    ]);
+    
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
-    }
+    $client = User::create([
+        'name' => 'Client',
+        'email' => 'client@client.com',
+        'password' => bcrypt('1234'),
+    ]);
+   */
+    $this->call([
+       /*  BrandSeeder::class,
+        CategorySeeder::class,
+        ProductSeeder::class, */
+        ProductImageSeeder::class,
+    ]); 
+}
+
 }

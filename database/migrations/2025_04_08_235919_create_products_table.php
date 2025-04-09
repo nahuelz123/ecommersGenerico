@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('brand_id')->constrained()->onDelete('cascade');
             $table->string('color');
             $table->string('size');
-            $table->string('image_path');
+            $table->string('main_image');
             $table->decimal('price', 10, 2);
             $table->integer('stock');
             $table->timestamps();
