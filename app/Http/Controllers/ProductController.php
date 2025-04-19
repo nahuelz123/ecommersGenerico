@@ -13,11 +13,40 @@ class ProductController extends Controller
 {
 
 
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::with('category', 'brand', 'images')->paginate(10);
-        return view('products.index', compact('products'));
+        $categories = Category::all();
+        $brands = Brand::all();
+
+        $query = Product::with('category', 'brand', 'images');
+
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->category);
+        }
+
+        if ($request->filled('brand')) {
+            $query->where('brand_id', $request->brand);
+        }
+
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', '%' . $searchTerm . '%')
+                    ->orWhereHas('brand', function ($q) use ($searchTerm) {
+                        $q->where('name', 'like', '%' . $searchTerm . '%');
+                    })
+                    ->orWhereHas('category', function ($q) use ($searchTerm) {
+                        $q->where('name', 'like', '%' . $searchTerm . '%');
+                    });
+            });
+        }
+
+        $products = $query->paginate(10);
+
+        return view('products.index', compact('products', 'categories', 'brands'));
     }
+
 
     public function create()
     {
@@ -42,7 +71,7 @@ class ProductController extends Controller
         ]);
 
         // Guardar imagen principal
-        $data['main_image'] = $request->file('main_image')->store('products');
+        $data['main_image'] = $request->file('main_image')->store('products', 'public');
 
         $product = Product::create($data);
 
@@ -51,7 +80,7 @@ class ProductController extends Controller
             foreach ($request->file('gallery') as $img) {
                 ProductImage::create([
                     'product_id' => $product->id,
-                    'image_path' => $img->store('products/gallery'),
+                    'image_path' => $img->store('products/gallery', 'public'),
                 ]);
             }
         }
@@ -89,7 +118,7 @@ class ProductController extends Controller
         ]);
 
         if ($request->hasFile('main_image')) {
-            $data['main_image'] = $request->file('main_image')->store('products');
+            $data['main_image'] = $request->file('main_image')->store('products', 'public');
         }
 
         $product->update($data);
@@ -98,7 +127,7 @@ class ProductController extends Controller
             foreach ($request->file('gallery') as $img) {
                 ProductImage::create([
                     'product_id' => $product->id,
-                    'image_path' => $img->store('products/gallery'),
+                    'image_path' => $img->store('products/gallery', 'public'),
                 ]);
             }
         }

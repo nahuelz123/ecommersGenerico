@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
@@ -20,7 +21,17 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('settings/password', 'settings.password')->name('settings.password');
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
 });
+Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
+    Route::resource('products', ProductController::class);
+});
+
 Route::resource('products', ProductController::class);
+
+Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
+    Route::resource('orders', OrderController::class);
+});
+
+
 
 // Carrito
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
