@@ -38,20 +38,20 @@
             <div class="col-md-4">
                 <div class="input-group">
                     <button class="btn btn-outline-secondary" type="button" id="toggleSearch">
-                        <img src="{{ asset('storage/image/buscar.png') }}" alt="Buscar" style="width: 20px; height: 20px;">                    </button>
-                    
+                        <img src="{{ asset('storage/image/buscar.png') }}" alt="Buscar"
+                            style="width: 20px; height: 20px;"> </button>
+
                     <input type="text" name="search" class="form-control d-none"
-                           placeholder="Buscar por nombre, marca o categoría"
-                           value="{{ request('search') }}" id="searchInput">
+                        placeholder="Buscar por nombre, marca o categoría" value="{{ request('search') }}" id="searchInput">
                 </div>
             </div>
 
             <script>
-                document.addEventListener('DOMContentLoaded', function () {
+                document.addEventListener('DOMContentLoaded', function() {
                     const toggleSearch = document.getElementById('toggleSearch');
                     const searchInput = document.getElementById('searchInput');
 
-                    toggleSearch.addEventListener('click', function () {
+                    toggleSearch.addEventListener('click', function() {
                         searchInput.classList.toggle('d-none');
                         if (!searchInput.classList.contains('d-none')) {
                             searchInput.focus();
@@ -79,6 +79,11 @@
 
                             <a href="{{ route('products.show', $product) }}" class="btn btn-outline-primary mt-auto">Ver
                                 detalles</a>
+                            <!-- Formulario para agregar producto al carrito -->
+                            <form action="{{ route('cart.add', $product->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-primary">Agregar al carrito</button>
+                            </form>
                         </div>
                     </div>
                 </div>

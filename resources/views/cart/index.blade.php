@@ -1,45 +1,53 @@
 @extends('layouts.app')
 
-@section('content')
-    <div class="container mx-auto py-4">
-        <h2 class="text-xl font-bold mb-4">Carrito de compras</h2>
+@section('title', 'Carrito de Compras')
 
-        @if (empty($cart))
-            <p>No hay productos en el carrito.</p>
-        @else
-            <table class="w-full text-left border">
+@section('content')
+    <div class="container">
+        <h1 class="mb-4">Carrito de Compras</h1>
+
+        @if(session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
+
+        @if(session('error'))
+            <div class="alert alert-danger">{{ session('error') }}</div>
+        @endif
+
+        @if(count($cart) > 0)
+            <form action="{{ route('cart.clear') }}" method="POST">
+                @csrf
+                <button type="submit" class="btn btn-danger mb-3">Vaciar Carrito</button>
+            </form>
+
+            <table class="table">
                 <thead>
                     <tr>
                         <th>Producto</th>
                         <th>Precio</th>
                         <th>Cantidad</th>
-                        <th>Subtotal</th>
-                        <th>Acción</th>
+                        <th>Total</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @php $total = 0; @endphp
-                    @foreach ($cart as $item)
-                        @php
-                            $subtotal = $item['product']->price * $item['quantity'];
-                            $total += $subtotal;
-                        @endphp
-                        <tr class="border-t">
+                    @foreach($cart as $item)
+                        <tr>
                             <td>{{ $item['product']->name }}</td>
-                            <td>${{ $item['product']->price }}</td>
+                            <td>${{ number_format($item['product']->price, 2) }}</td>
                             <td>
-                                <form method="POST" action="{{ route('cart.update', $item['product']) }}">
+                                <form action="{{ route('cart.update', $item['product']->id) }}" method="POST">
                                     @csrf
-                                    <input type="number" name="quantity" value="{{ $item['quantity'] }}" min="1">
-                                    <button type="submit" class="text-blue-600 ml-2">Actualizar</button>
+                                    <input type="number" name="quantity" value="{{ $item['quantity'] }}" min="1" class="form-control" style="width: 70px;">
+                                    <button type="submit" class="btn btn-primary mt-2">Actualizar</button>
                                 </form>
                             </td>
-                            <td>${{ $subtotal }}</td>
+                            <td>${{ number_format($item['product']->price * $item['quantity'], 2) }}</td>
                             <td>
-                                <form method="POST" action="{{ route('cart.remove', $item['product']) }}">
+                                <form action="{{ route('cart.remove', $item['product']->id) }}" method="POST">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="text-red-600">Eliminar</button>
+                                    <button type="submit" class="btn btn-danger">Eliminar</button>
                                 </form>
                             </td>
                         </tr>
@@ -47,16 +55,13 @@
                 </tbody>
             </table>
 
-            <div class="mt-4">
-                <p class="text-lg font-semibold">Total: ${{ $total }}</p>
-
-                <form action="{{ route('cart.clear') }}" method="POST" class="mt-2 inline-block">
-                    @csrf
-                    <button class="bg-red-500 px-4 py-2 text-white rounded">Vaciar carrito</button>
-                </form>
-
-                <a href="{{ route('checkout.index') }}" class="ml-4 bg-green-500 px-4 py-2 text-white rounded">Finalizar compra</a>
+            <div class="d-flex justify-content-end">
+                <strong>Total: ${{ number_format(array_reduce($cart, function ($carry, $item) { return $carry + ($item['product']->price * $item['quantity']); }, 0), 2) }}</strong>
             </div>
+
+            <a href="{{ route('checkout') }}" class="btn btn-success mt-3">Ir a pagar</a>
+        @else
+            <p>No hay productos en tu carrito.</p>
         @endif
     </div>
 @endsection
