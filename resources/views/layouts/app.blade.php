@@ -33,7 +33,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('cart.index') }}">Carrito</a>
                     </li>
-
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('addresses.index') }}">Direcciones</a>
+                    </li>
                     @auth
                         @if(auth()->user()->role === 'admin')
                             {{-- Links para Admin --}}

@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\City;
 use App\Models\Province;
 use App\Models\ShippingAddress;
 use Illuminate\Http\Request;
@@ -15,9 +16,10 @@ class ShippingAddressController extends Controller
      */
     public function index()
     {
+        
         // Obtiene todas las direcciones de envío del usuario autenticado
-        $addresses = Auth::user()->addresses;
-
+        $addresses = Auth::user()->shippingAddresses;
+     /*    dd('addresses', $addresses); */
         return view('addresses.index', compact('addresses'));
     }
 
@@ -30,37 +32,52 @@ class ShippingAddressController extends Controller
     {
         // Cargar datos necesarios como provincias o ciudades
         $provinces = Province::all(); // Ejemplo, puedes adaptar según tu estructura
-
-        return view('addresses.create', compact('provinces'));
+    $cities = City::all(); // Ejemplo, puedes adaptar según tu estructura
+        return view('addresses.create', compact('provinces', 'cities'));
     }
 
-    /**
-     * Almacenar una nueva dirección de envío en la base de datos.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function store(Request $request)
     {
         // Validación de los datos recibidos
-        $request->validate([
-            'street' => 'required|string|max:255',
+        $validated = $request->validate([
+            'phone' => 'required|string|max:20',
+            'address' => 'required|string|max:255',
             'city_id' => 'required|exists:cities,id',
             'province_id' => 'required|exists:provinces,id',
+            'postal_code' => 'required|string|max:20', 
         ]);
-
+    
+        // Verificar si ya existe una dirección con los mismos datos para el usuario autenticado
+        $existingAddress = Auth::user()->shippingAddresses()
+            ->where('address', $validated['address'])
+            ->where('phone', $validated['phone'])
+            ->where('city_id', $validated['city_id'])
+            ->where('province_id', $validated['province_id'])
+            ->where('postal_code', $validated['postal_code'])
+            ->first();
+    
+        // Si ya existe, devolver un mensaje de error
+        if ($existingAddress) {
+            return redirect()->back()->with('error', 'Esta dirección ya ha sido agregada.');
+        }
+    
         // Guardar la nueva dirección
         $address = new ShippingAddress([
-            'street' => $request->street,
-            'city_id' => $request->city_id,
-            'province_id' => $request->province_id,
+            'user_id' => Auth::id(),
+            'phone' => $validated['phone'],
+            'address' => $validated['address'],
+            'city_id' => $validated['city_id'],
+            'province_id' => $validated['province_id'],
+            'postal_code' => $validated['postal_code'], 
         ]);
-
+    
         // Relacionar la dirección con el usuario autenticado
         Auth::user()->shippingAddresses()->save($address);
-        
+    
+        // Redirigir con mensaje de éxito
         return redirect()->route('addresses.index')->with('success', 'Dirección guardada correctamente.');
     }
+    
 
     /**
      * Mostrar el formulario para editar una dirección de envío.
@@ -81,37 +98,37 @@ class ShippingAddressController extends Controller
         return view('addresses.edit', compact('address', 'provinces'));
     }
 
-    /**
-     * Actualizar la dirección de envío.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\ShippingAddress  $address
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function update(Request $request, ShippingAddress $address)
+    public function update(Request $request, $id)
     {
-        // Verificar que la dirección pertenece al usuario autenticado
-        if ($address->user_id !== Auth::user()->id) {
-            return redirect()->route('addresses.index')->with('error', 'No tienes permiso para actualizar esta dirección.');
-        }
-
         // Validación de los datos recibidos
-        $request->validate([
-            'street' => 'required|string|max:255',
+        $validated = $request->validate([
+            'phone' => 'required|string|max:20',
+            'address' => 'required|string|max:255',
             'city_id' => 'required|exists:cities,id',
             'province_id' => 'required|exists:provinces,id',
+            'postal_code' => 'required|string|max:20',
         ]);
-
+    
+        // Buscar la dirección a actualizar
+        $address = ShippingAddress::findOrFail($id);
+    
+        // Comprobar si la dirección ya existe, excepto la que estamos actualizando
+        if (ShippingAddress::where('user_id', Auth::id())
+                          ->where('address', $validated['address'])
+                          ->where('city_id', $validated['city_id'])
+                          ->where('province_id', $validated['province_id'])
+                          ->where('postal_code', $validated['postal_code'])
+                          ->where('id', '!=', $address->id) // Ignorar la dirección actual
+                          ->exists()) {
+            return redirect()->back()->with('error', 'Ya tienes esta dirección registrada.');
+        }
+    
         // Actualizar la dirección
-        $address->update([
-            'street' => $request->street,
-            'city_id' => $request->city_id,
-            'province_id' => $request->province_id,
-        ]);
-
+        $address->update($validated);
+    
         return redirect()->route('addresses.index')->with('success', 'Dirección actualizada correctamente.');
     }
-
+    
     /**
      * Eliminar una dirección de envío.
      *

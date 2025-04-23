@@ -53,10 +53,13 @@
                     <select name="address_id" id="address_id" class="form-control" required>
                         @foreach($addresses as $address)
                             <option value="{{ $address->id }}">
-                                {{ $address->street }} - {{ $address->city->name }}
+                                {{$address->address }} - {{ $address->city->name }}
                             </option>
                         @endforeach
+                        
                     </select>
+                    <br>
+                    <a href="{{ route('addresses.create') }}" class="btn btn-sm btn-outline-primary">Agregar otra dirección</a>
                 @else
                     <p>No tenés direcciones registradas. 
                         <a href="{{ route('addresses.create') }}" class="btn btn-sm btn-outline-primary">Agregar dirección</a>

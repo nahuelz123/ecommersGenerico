@@ -19,7 +19,7 @@
     @forelse($addresses as $address)
         <div class="card mb-3">
             <div class="card-body">
-                <p>{{ $address->street }}, {{ $address->city->name }}, {{ $address->province->name }}</p>
+                <p>Telefono: {{ $address->phone }},<br> Dirección: {{  $address->address}},<br> Ciudad: {{ $address->city->name }}, <br> Provincia: {{ $address->province->name }}</p>
                 <a href="{{ route('addresses.edit', $address) }}" class="btn btn-warning">Editar</a>
                 <form action="{{ route('addresses.destroy', $address) }}" method="POST" style="display: inline;">
                     @csrf

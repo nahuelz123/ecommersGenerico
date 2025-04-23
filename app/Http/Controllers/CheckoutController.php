@@ -15,7 +15,7 @@ class CheckoutController extends Controller
 
     return view('checkout.index', [
         'cart' => $cart,
-        'addresses' => $user->addresses, // relación del modelo User con direcciones
+        'addresses' => $user->shippingAddresses, // relación del modelo User con direcciones
         'shippingMethods' => ShippingMethod::all(),
         'paymentMethods' => PaymentMethod::all(),
     ]);
