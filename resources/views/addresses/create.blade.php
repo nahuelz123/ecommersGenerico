@@ -82,12 +82,6 @@
         }
     });
 
-    // Inicializar Select2 en el campo de provincias
-    $(document).ready(function() {
-        $('#province_id').select2({
-            placeholder: 'Selecciona una provincia',
-            allowClear: true
-        });
-    });
+
 </script>
 @endsection

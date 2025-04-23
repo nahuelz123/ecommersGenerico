@@ -58,7 +58,7 @@ class ShippingAddressController extends Controller
 
         // Relacionar la dirección con el usuario autenticado
         Auth::user()->shippingAddresses()->save($address);
-
+        
         return redirect()->route('addresses.index')->with('success', 'Dirección guardada correctamente.');
     }
 
