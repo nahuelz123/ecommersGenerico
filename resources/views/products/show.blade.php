@@ -23,18 +23,30 @@
                 <p><strong>Marca:</strong> {{ $product->brand->name }}</p>
                 <p><strong>Color:</strong> {{ $product->color }}</p>
                 <p><strong>Talle:</strong> {{ $product->size }}</p>
-                
-                @auth
-                @if(auth()->user()->role === 'admin')
 
-                    <a href="{{ route('products.edit', $product) }}" class="btn btn-warning">Editar</a>
-                    <form action="{{ route('products.destroy', $product) }}" method="POST" class="d-inline">
-                        @csrf
-                        @method('DELETE')
-                        <button class="btn btn-danger"
-                            onclick="return confirm('¿Estás seguro de eliminar este producto?')">Eliminar</button>
-                    </form>
-                @endif
+
+
+                @auth
+                    @if (auth()->user()->role === 'admin')
+                        <a href="{{ route('products.edit', $product) }}" class="btn btn-warning">Editar</a>
+                        <form action="{{ route('products.destroy', $product) }}" method="POST" class="d-inline">
+                            @csrf
+                            @method('DELETE')
+                            <button class="btn btn-danger"
+                                onclick="return confirm('¿Estás seguro de eliminar este producto?')">Eliminar</button>
+                        </form>
+                    @else
+                        <!-- Formulario para agregar producto al carrito -->
+                        <form action="{{ route('cart.add', $product->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-primary">Agregar al carrito</button>
+                        </form>
+                        <!-- Formulario para comprar ahora -->
+                        <form action="{{ route('checkout.directPurchase', $product->id) }}" method="POST" class="d-inline">
+                            @csrf
+                            <button type="submit" class="btn btn-success">Comprar ahora</button>
+                        </form>
+                    @endif
                 @endauth
             </div>
         </div>

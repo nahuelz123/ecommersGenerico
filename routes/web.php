@@ -22,7 +22,7 @@ use Livewire\Volt\Volt;
 //Route::get('/', fn() => view('welcome'))->name('home');
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-Route::resource('products', ProductController::class)->only(['index','show','create','edit','destroy']);
+Route::resource('products', ProductController::class);
 
 /*
 |--------------------------------------------------------------------------
@@ -45,9 +45,11 @@ Route::middleware(['auth'])->group(function () {
     | Admin
     |--------------------------------------------------------------------------
     */
+    Route::resource('products', ProductController::class);
     Route::prefix('admin')->name('admin.')->group(function () {
-        Route::resource('products', ProductController::class);
-        Route::resource('orders', OrderController::class);
+    Route::resource('products', ProductController::class);
+        // Definir la ruta para crear productos
+    Route::resource('orders', OrderController::class);
     });
 
     Route::prefix('user')->name('user.')->group(function () {

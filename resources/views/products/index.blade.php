@@ -5,10 +5,13 @@
 @section('content')
     <div class="container">
         <h1 class="mb-4 d-flex justify-content-between align-items-center">
+
             Productos
+            @if (auth()->user()->role === 'admin')
             <a href="{{ route('products.create') }}" class="btn btn-success">
                 <i class="bi bi-plus-lg"></i> Nuevo producto
             </a>
+            @endif
         </h1>
 
         {{-- Filtros con búsqueda --}}
@@ -79,11 +82,28 @@
 
                             <a href="{{ route('products.show', $product) }}" class="btn btn-outline-primary mt-auto">Ver
                                 detalles</a>
-                            <!-- Formulario para agregar producto al carrito -->
-                            <form action="{{ route('cart.add', $product->id) }}" method="POST">
-                                @csrf
-                                <button type="submit" class="btn btn-primary">Agregar al carrito</button>
-                            </form>
+                                @auth
+                                @if (auth()->user()->role === 'admin')
+                                    <a href="{{ route('products.edit', $product) }}" class="btn btn-warning">Editar</a>
+                                    <form action="{{ route('products.destroy', $product) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn btn-danger"
+                                            onclick="return confirm('¿Estás seguro de eliminar este producto?')">Eliminar</button>
+                                    </form>
+                                @else
+                                    <!-- Formulario para agregar producto al carrito -->
+                                    <form action="{{ route('cart.add', $product->id) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="btn btn-primary">Agregar al carrito</button>
+                                    </form>
+                                    <!-- Formulario para comprar ahora -->
+                                    <form action="{{ route('checkout', $product->id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-success">Comprar ahora</button>
+                                    </form>
+                                @endif
+                            @endauth
                         </div>
                     </div>
                 </div>
