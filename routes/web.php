@@ -7,7 +7,9 @@ use App\Http\Controllers\{
     CheckoutController,
     OrderController,
     ProductController,
-    ShippingAddressController
+    ShippingAddressController,
+    HomeController,
+    UserController
 };
 use Livewire\Volt\Volt;
 
@@ -17,9 +19,10 @@ use Livewire\Volt\Volt;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', fn() => view('welcome'))->name('home');
+//Route::get('/', fn() => view('welcome'))->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
-Route::resource('products', ProductController::class)->only(['index', 'show']);
+Route::resource('products', ProductController::class)->only(['index','show','create','edit','destroy']);
 
 /*
 |--------------------------------------------------------------------------
@@ -47,6 +50,12 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('orders', OrderController::class);
     });
 
+    Route::prefix('user')->name('user.')->group(function () {
+        Route::get('/', [UserController::class, 'index'])->name('index');
+        Route::get('edit', [UserController::class , 'edit'])->name('edit');
+        Route::put('update', [UserController::class, 'update'])->name('update');
+        Route::get('index', [UserController::class , 'index'])->name('index');
+    });
     /*
     |--------------------------------------------------------------------------
     | Carrito de Compras

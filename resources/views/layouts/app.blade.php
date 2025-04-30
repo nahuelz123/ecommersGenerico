@@ -30,13 +30,15 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('products.index') }}">Productos</a>
                     </li>
+                @auth
+                @if(auth()->user()->role === 'admin' or auth()->user()->role === 'client')
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('cart.index') }}">Carrito</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('addresses.index') }}">Direcciones</a>
                     </li>
-                    @auth
+
                         @if(auth()->user()->role === 'admin')
                             {{-- Links para Admin --}}
                             <li class="nav-item">
@@ -50,13 +52,15 @@
                         {{-- Links para Cliente --}}
                         @if(auth()->user()->role === 'client')
                             <li class="nav-item">
+                            @verbatim
                                 <a class="nav-link" href="{{ route('orders.index') }}">Mis Órdenes</a>
+                            @endverbatim
                             </li>
                         @endif
                     @endauth
+                    @endif
                 </ul>
-
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto me-5">
                     @guest
                         <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Ingresar</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('register') }}">Registrarse</a></li>
@@ -67,6 +71,9 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li>
+                                  <li>
+                             <a class="dropdown-item" href="{{ route('user.index')}}" id="userDropdown" role="button">Perfil </a>
+                            </li>
                                     <form method="POST" action="{{ route('logout') }}">
                                         @csrf
                                         <button type="submit" class="dropdown-item">Cerrar sesión</button>
