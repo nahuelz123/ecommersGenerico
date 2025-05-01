@@ -14,27 +14,29 @@ class CartController extends Controller
         return view('cart.index', compact('cart'));
     }
 
-    public function add(Request $request, Product $product)
+    public function addToCart(Request $request, Product $product)
     {
         $cart = session('cart', []);
-        
-        // Verifica si el producto ya está en el carrito
-        if (isset($cart[$product->id])) {
-            // Si ya está, incrementa la cantidad
-            $cart[$product->id]['quantity'] += 1;
+        $productId = $product->id;
+        $quantity = max(1, (int) $request->input('quantity', 1));
+    
+        // Eliminar compra directa si la hay
+        session()->forget('direct_purchase');
+    
+        if (isset($cart[$productId])) {
+            $cart[$productId]['quantity'] += $quantity;
         } else {
-            // Si no está, lo agrega con cantidad 1
-            $cart[$product->id] = [
+            $cart[$productId] = [
                 'product' => $product,
-                'quantity' => 1,
+                'quantity' => $quantity
             ];
         }
-
-        // Guarda el carrito en la sesión
+    
         session(['cart' => $cart]);
-
+    
         return redirect()->route('cart.index')->with('success', 'Producto agregado al carrito.');
     }
+    
 
     public function update(Request $request, Product $product)
     {

@@ -98,10 +98,15 @@
                                         <button type="submit" class="btn btn-primary">Agregar al carrito</button>
                                     </form>
                                     <!-- Formulario para comprar ahora -->
-                                    <form action="{{ route('checkout', $product->id) }}" method="POST" class="d-inline">
+                                    <form action="{{ route('checkout.directPurchase', $product->id) }}" method="POST">
                                         @csrf
+                                        <div class="mb-2">
+                                            <label for="quantity">Cantidad:</label>
+                                            <input type="number" name="quantity" id="quantity" class="form-control w-25" value="1" min="1" max="{{ $product->stock }}" required>
+                                        </div>
                                         <button type="submit" class="btn btn-success">Comprar ahora</button>
                                     </form>
+                                    
                                 @endif
                             @endauth
                         </div>

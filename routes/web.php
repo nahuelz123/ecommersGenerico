@@ -76,8 +76,14 @@ Route::middleware(['auth'])->group(function () {
     | Checkout
     |--------------------------------------------------------------------------
     */
-    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+
+
+
+
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+    Route::post('/checkout/direct-purchase/{product}', [CheckoutController::class, 'directPurchase'])->name('checkout.directPurchase');
+    
 
     /*
     |--------------------------------------------------------------------------

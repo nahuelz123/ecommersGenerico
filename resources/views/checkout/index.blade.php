@@ -14,7 +14,16 @@
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
 
-    @if(count($cart) > 0)
+    @php $total = 0; @endphp
+
+    @if($directPurchase)
+        @php
+            $product = \App\Models\Product::find($directPurchase['product_id']);
+            $quantity = $directPurchase['quantity'];
+            $subtotal = $product->price * $quantity;
+            $total = $subtotal;
+        @endphp
+
         <table class="table">
             <thead>
                 <tr>
@@ -24,7 +33,24 @@
                 </tr>
             </thead>
             <tbody>
-                @php $total = 0; @endphp
+                <tr>
+                    <td>{{ $product->name }}</td>
+                    <td>{{ $quantity }}</td>
+                    <td>${{ number_format($subtotal, 2) }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+    @elseif(count($cart) > 0)
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
                 @foreach($cart as $item)
                     @php 
                         $subtotal = $item['product']->price * $item['quantity'];
@@ -38,7 +64,11 @@
                 @endforeach
             </tbody>
         </table>
+    @else
+        <p>No hay productos en tu carrito.</p>
+    @endif
 
+    @if($total > 0)
         <div class="text-end">
             <h4>Total: ${{ number_format($total, 2) }}</h4>
         </div>
@@ -53,10 +83,9 @@
                     <select name="address_id" id="address_id" class="form-control" required>
                         @foreach($addresses as $address)
                             <option value="{{ $address->id }}">
-                                {{$address->address }} - {{ $address->city->name }}
+                                {{ $address->address }} - {{ $address->city->name }}
                             </option>
                         @endforeach
-                        
                     </select>
                     <br>
                     <a href="{{ route('addresses.create') }}" class="btn btn-sm btn-outline-primary">Agregar otra dirección</a>
@@ -91,8 +120,6 @@
 
             <button type="submit" class="btn btn-success">Confirmar compra</button>
         </form>
-    @else
-        <p>No hay productos en tu carrito.</p>
     @endif
 </div>
 @endsection

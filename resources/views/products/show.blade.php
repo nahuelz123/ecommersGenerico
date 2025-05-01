@@ -42,7 +42,7 @@
                             <button type="submit" class="btn btn-primary">Agregar al carrito</button>
                         </form>
                         <!-- Formulario para comprar ahora -->
-                        <form action="{{ route('checkout.directPurchase', $product->id) }}" method="POST" class="d-inline">
+                        <form action="{{ route('checkout.directPurchase' , $product->id) }}" method="POST" class="d-inline">
                             @csrf
                             <button type="submit" class="btn btn-success">Comprar ahora</button>
                         </form>
