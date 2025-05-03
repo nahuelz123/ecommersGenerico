@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\PaymentMethod;
@@ -9,37 +10,16 @@ use Illuminate\Support\Facades\Auth;
 
 class CheckoutController extends Controller
 {
+
     public function index()
     {
-        // Obtener el carrito de la sesión
         $cart = session('cart', []);
-        
-        // Obtener la compra directa si existe
-        $directPurchase = session('direct_purchase');
-
-        // Obtener la dirección de envío, métodos de envío y pago
         $user = Auth::user();
         $addresses = $user->shippingAddresses;
         $shippingMethods = ShippingMethod::all();
         $paymentMethods = PaymentMethod::all();
 
-        // Si existe una compra directa, mostrar solo ese producto
-        if ($directPurchase) {
-            // Crear un array con la compra directa como único "producto"
-            $cart = [
-                $directPurchase['product_id'] => [
-                    'product' => Product::findOrFail($directPurchase['product_id']),
-                    'quantity' => $directPurchase['quantity']
-                ]
-            ];
-        }
-
-        return view('checkout.index', [
-            'cart' => $cart,
-            'addresses' => $addresses,
-            'shippingMethods' => $shippingMethods,
-            'paymentMethods' => $paymentMethods
-        ]);
+        return view('checkout.index', compact('cart', 'addresses', 'shippingMethods', 'paymentMethods'));
     }
 
     public function store(Request $request)
@@ -55,15 +35,28 @@ class CheckoutController extends Controller
         return redirect()->route('cart.index')->with('success', 'Compra realizada con éxito.');
     }
 
-    public function directPurchase(Product $product)
+    public function directPurchase(Product $product, Request $request)
     {
+        //Reseteo la session
+        session()->forget('direct_purchase');
+
+        $quantity = $request->input('quantity');
+        if ($quantity > $product->stock) {
+            return back()->withErrors(['quantity' => 'No hay suficiente stock disponible.']);
+        }
         // Guardamos la compra directa en la sesión
         session()->put('direct_purchase', [
             'product_id' => $product->id,
-            'quantity' => 1 // Si quieres permitir elegir cantidad, cambia esta parte
+            'subtotal' => $quantity * $product->price,
+            'quantity' => $quantity // Si quieres permitir elegir cantidad, cambia esta parte
         ]);
 
-        // Redirigir al checkout
-        return redirect()->route('checkout.index');
+        $user = Auth::user();
+        $addresses = $user->shippingAddresses;
+        $shippingMethods = ShippingMethod::all();
+        $paymentMethods = PaymentMethod::all();
+        // Dirige al checkout
+        session()->flash('success', 'Producto agregado con exito');
+        return view('checkout.indexDirect', compact('product', 'addresses', 'shippingMethods', 'paymentMethods'));
     }
 }

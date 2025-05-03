@@ -59,7 +59,7 @@
                 <strong>Total: ${{ number_format(array_reduce($cart, function ($carry, $item) { return $carry + ($item['product']->price * $item['quantity']); }, 0), 2) }}</strong>
             </div>
 
-            <a href="{{ route('checkout') }}" class="btn btn-success mt-3">Ir a pagar</a>
+            <a href="{{ route('checkout.index') }}" class="btn btn-success mt-3">Ir a pagar</a>
         @else
             <p>No hay productos en tu carrito.</p>
         @endif

@@ -8,9 +8,9 @@
 
             Productos
             @if (auth()->user()->role === 'admin')
-            <a href="{{ route('products.create') }}" class="btn btn-success">
-                <i class="bi bi-plus-lg"></i> Nuevo producto
-            </a>
+                <a href="{{ route('products.create') }}" class="btn btn-success">
+                    <i class="bi bi-plus-lg"></i> Nuevo producto
+                </a>
             @endif
         </h1>
 
@@ -82,7 +82,7 @@
 
                             <a href="{{ route('products.show', $product) }}" class="btn btn-outline-primary mt-auto">Ver
                                 detalles</a>
-                                @auth
+                            @auth
                                 @if (auth()->user()->role === 'admin')
                                     <a href="{{ route('products.edit', $product) }}" class="btn btn-warning">Editar</a>
                                     <form action="{{ route('products.destroy', $product) }}" method="POST" class="d-inline">
@@ -93,7 +93,7 @@
                                     </form>
                                 @else
                                     <!-- Formulario para agregar producto al carrito -->
-                                    <form action="{{ route('cart.add', $product->id) }}" method="POST">
+                                    <form action="{{ route('cart.addToCart', $product->id) }}" method="POST">
                                         @csrf
                                         <button type="submit" class="btn btn-primary">Agregar al carrito</button>
                                     </form>
@@ -102,11 +102,11 @@
                                         @csrf
                                         <div class="mb-2">
                                             <label for="quantity">Cantidad:</label>
-                                            <input type="number" name="quantity" id="quantity" class="form-control w-25" value="1" min="1" max="{{ $product->stock }}" required>
+                                            <input type="number" name="quantity" id="quantity" class="form-control w-25"
+                                                value="1" min="1" max="{{ $product->stock }}" required>
                                         </div>
                                         <button type="submit" class="btn btn-success">Comprar ahora</button>
                                     </form>
-                                    
                                 @endif
                             @endauth
                         </div>
@@ -116,7 +116,7 @@
                 <p>No hay productos disponibles.</p>
             @endforelse
         </div>
-
+        <a href="{{ route('checkout.index') }}" class="btn btn-success mt-3">Ir a pagar</a>
         {{-- Paginación --}}
         <div class="d-flex justify-content-center">
             {{ $products->links() }}
