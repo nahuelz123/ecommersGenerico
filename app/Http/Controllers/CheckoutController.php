@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Models\ShippingMethod;
@@ -18,11 +20,11 @@ class CheckoutController extends Controller
         $addresses = $user->shippingAddresses;
         $shippingMethods = ShippingMethod::all();
         $paymentMethods = PaymentMethod::all();
-
+        
         return view('checkout.index', compact('cart', 'addresses', 'shippingMethods', 'paymentMethods'));
     }
 
-    public function store(Request $request)
+   /*  public function store(Request $request)
     {
         $cart = session('cart', []);
 
@@ -34,6 +36,76 @@ class CheckoutController extends Controller
 
         return redirect()->route('cart.index')->with('success', 'Compra realizada con éxito.');
     }
+ */
+
+
+
+public function store(Request $request)
+{
+    $user = Auth::user();
+
+    $request->validate([
+        'address_id' => 'required|exists:shipping_addresses,id',
+        'shipping_method_id' => 'required|exists:shipping_methods,id',
+        'payment_method_id' => 'required|exists:payment_methods,id',
+    ]);
+
+    $cart = session('cart', []);
+    $directPurchase = session('direct_purchase');
+
+    if ($directPurchase) {
+        $product = Product::findOrFail($directPurchase['product_id']);
+        $cart = [
+            $product->id => [
+                'product' => $product,
+                'quantity' => $directPurchase['quantity']
+            ]
+        ];
+    }
+
+    if (empty($cart)) {
+        return redirect()->route('cart.index')->with('error', 'Tu carrito está vacío.');
+    }
+
+    // Calcular el total
+    $total = 0;
+    foreach ($cart as $item) {
+        $total += $item['product']->price * $item['quantity'];
+    }
+
+    // Crear la orden
+    $order = Order::create([
+        'user_id' => $user->id,
+        'shipping_address_id' => $request->address_id,
+        'shipping_method_id' => $request->shipping_method_id,
+        'payment_method_id' => $request->payment_method_id,
+        'total' => $total,
+        'status' => 'pendiente', // puedes usar un enum o constantes
+    ]);
+
+    // Crear los productos asociados a la orden
+    foreach ($cart as $item) {
+        OrderItem::create([
+            'order_id' => $order->id,
+            'product_id' => $item['product']->id,
+            'quantity' => $item['quantity'],
+            'price' => $item['product']->price,
+        ]);
+    }
+
+    // Limpiar el carrito y la compra directa
+    session()->forget('cart');
+    session()->forget('direct_purchase');
+
+    return redirect()->route('orders.show', $order->id)->with('success', 'Compra realizada con éxito.');
+}
+
+
+
+
+
+
+
 
     public function directPurchase(Product $product, Request $request)
     {

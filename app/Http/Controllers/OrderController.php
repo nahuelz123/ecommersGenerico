@@ -4,17 +4,21 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $orders = Auth::user()->orders->latest()->get();
+        return view('orders.index', compact('orders'));
     }
 
+    public function show(Order $order)
+    {
+/*         $this->authorize('view', $order); // si tenés políticas
+ */        return view('orders.show', compact('order'));
+    }
     /**
      * Show the form for creating a new resource.
      */
@@ -31,13 +35,7 @@ class OrderController extends Controller
         //
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Order $order)
-    {
-        //
-    }
+
 
     /**
      * Show the form for editing the specified resource.

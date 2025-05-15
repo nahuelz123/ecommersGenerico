@@ -5,6 +5,14 @@
         <a href="{{ route('addresses.create') }}">
             Agregar dirección
         </a>
+        <div class="form-group">
+            <label for="address">Selecciona una dirección:</label>
+            <select name="address" id="address" class="form-control">
+                @foreach ($addresses as $address)
+                    <option value="{{ $address->id }}">{{ $address->address }}</option>
+                @endforeach
+            </select>
+        </div>
             <input type="hidden" name="url" value="{{ url()->current() }}">
         <div class="mb-3">
             <label for="shipping_method_id">Método de envío</label>

@@ -42,9 +42,6 @@
                         @if(auth()->user()->role === 'admin')
                             {{-- Links para Admin --}}
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('admin.products.index') }}">Admin Productos</a>
-                            </li>
-                            <li class="nav-item">
                                 <a class="nav-link" href="{{ route('admin.orders.index') }}">Admin Órdenes</a>
                             </li>
                         @endif

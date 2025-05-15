@@ -30,7 +30,7 @@
             </tbody>
         </table>
     @endif
-
+   
     @include('checkout._form', [
         'addresses' => $addresses,
         'shippingMethods' => $shippingMethods,

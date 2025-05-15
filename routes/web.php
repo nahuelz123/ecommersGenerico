@@ -49,7 +49,11 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
     Route::resource('products', ProductController::class);
         // Definir la ruta para crear productos
+        Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
     Route::resource('orders', OrderController::class);
+       
+        Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+        
     });
 
     Route::prefix('user')->name('user.')->group(function () {
@@ -99,6 +103,10 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{address}', [ShippingAddressController::class, 'destroy'])->name('destroy');
     });
 });
+
+
+
+
 
 /*
 |--------------------------------------------------------------------------

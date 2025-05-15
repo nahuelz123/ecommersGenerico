@@ -19,7 +19,7 @@ class ShippingAddressController extends Controller
     {
 
         // Obtiene todas las direcciones de envío del usuario autenticado
-        $addresses = Auth::user()->shippingAddresses();
+        $addresses = Auth::user()->shippingAddresses;
         /*    dd('addresses', $addresses); */
         return view('addresses.index', compact('addresses'));
     }
