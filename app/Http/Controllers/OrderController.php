@@ -9,16 +9,19 @@ use Illuminate\Support\Facades\Auth;
 class OrderController extends Controller
 {
     public function index()
-    {
-        $orders = Auth::user()->orders->latest()->get();
-        return view('orders.index', compact('orders'));
-    }
+{
+    $orders = Auth::user()->orders()->latest()->get();
+    return view('orders.index', compact('orders'));
+}
 
-    public function show(Order $order)
-    {
-/*         $this->authorize('view', $order); // si tenés políticas
- */        return view('orders.show', compact('order'));
-    }
+public function show(Order $order)
+{
+    // Opcional: validar que el order pertenece al usuario
+    // $this->authorize('view', $order);
+
+    return view('orders.show', compact('order'));
+}
+
     /**
      * Show the form for creating a new resource.
      */

@@ -49,9 +49,9 @@
                         {{-- Links para Cliente --}}
                         @if(auth()->user()->role === 'client')
                             <li class="nav-item">
-                            @verbatim
+                           
                                 <a class="nav-link" href="{{ route('orders.index') }}">Mis Órdenes</a>
-                            @endverbatim
+                           
                             </li>
                         @endif
                     @endauth

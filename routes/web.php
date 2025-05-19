@@ -88,9 +88,11 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::prefix('orders')->name('orders.')->group(function () {
-        Route::get('user', [OrderController::class, 'userOrders'])->name('user.index');
-        Route::get('user/{order}', [OrderController::class, 'userOrderShow'])->name('user.show');
+        Route::get('user', [OrderController::class, 'index'])->name('index');
+        Route::get('user/{order}', [OrderController::class, 'show'])->name('show');
     });
+    
+    
 
     /*
     |--------------------------------------------------------------------------
