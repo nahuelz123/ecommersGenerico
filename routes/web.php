@@ -19,17 +19,14 @@ use Livewire\Volt\Volt;
 |--------------------------------------------------------------------------
 */
 
-//Route::get('/', fn() => view('welcome'))->name('home');
 Route::get('/', [HomeController::class, 'index'])->name('home');
-
-Route::resource('products', ProductController::class);
+Route::resource('products', ProductController::class)->only(['index', 'show']);
 
 /*
 |--------------------------------------------------------------------------
-| Rutas Autenticadas Generales
+| Rutas Autenticadas
 |--------------------------------------------------------------------------
 */
-
 Route::middleware(['auth'])->group(function () {
 
     Route::view('dashboard', 'dashboard')->middleware(['verified'])->name('dashboard');
@@ -42,26 +39,25 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Admin
+    | Rutas de Usuario
     |--------------------------------------------------------------------------
     */
-    Route::resource('products', ProductController::class);
-    Route::prefix('admin')->name('admin.')->group(function () {
-    Route::resource('products', ProductController::class);
-        // Definir la ruta para crear productos
-        Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::resource('orders', OrderController::class);
-       
-        Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
-        
-    });
-
     Route::prefix('user')->name('user.')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('index');
-        Route::get('edit', [UserController::class , 'edit'])->name('edit');
+        Route::get('edit', [UserController::class, 'edit'])->name('edit');
         Route::put('update', [UserController::class, 'update'])->name('update');
-        Route::get('index', [UserController::class , 'index'])->name('index');
     });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Rutas Admin
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::resource('products', ProductController::class);
+        Route::resource('orders', OrderController::class);
+    });
+
     /*
     |--------------------------------------------------------------------------
     | Carrito de Compras
@@ -80,33 +76,29 @@ Route::middleware(['auth'])->group(function () {
     | Checkout
     |--------------------------------------------------------------------------
     */
+    Route::prefix('checkout')->name('checkout.')->group(function () {
+        Route::get('/', [CheckoutController::class, 'index'])->name('index');
+        Route::post('/', [CheckoutController::class, 'store'])->name('store');
+        Route::post('direct-purchase/{product}', [CheckoutController::class, 'directPurchase'])->name('directPurchase');
+    });
 
-
-
-
-    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-    Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
-    Route::post('/checkout/direct-purchase/{product}', [CheckoutController::class, 'directPurchase'])->name('checkout.directPurchase');
-    
+    /*
+    |--------------------------------------------------------------------------
+    | Órdenes del Usuario
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('orders')->name('orders.')->group(function () {
+        Route::get('user', [OrderController::class, 'userOrders'])->name('user.index');
+        Route::get('user/{order}', [OrderController::class, 'userOrderShow'])->name('user.show');
+    });
 
     /*
     |--------------------------------------------------------------------------
     | Direcciones de Envío
     |--------------------------------------------------------------------------
     */
-    Route::prefix('addresses')->name('addresses.')->group(function () {
-        Route::get('/', [ShippingAddressController::class, 'index'])->name('index');
-        Route::get('/create', [ShippingAddressController::class, 'create'])->name('create');
-        Route::post('/', [ShippingAddressController::class, 'store'])->name('store');
-        Route::get('/{address}/edit', [ShippingAddressController::class, 'edit'])->name('edit');
-        Route::put('/{address}', [ShippingAddressController::class, 'update'])->name('update');
-        Route::delete('/{address}', [ShippingAddressController::class, 'destroy'])->name('destroy');
-    });
+    Route::resource('addresses', ShippingAddressController::class)->except(['show']);
 });
-
-
-
-
 
 /*
 |--------------------------------------------------------------------------
@@ -120,7 +112,7 @@ Route::get('/get-cities/{provinceId}', function ($provinceId) {
     return response()->json(['cities' => $cities]);
 });
 
-// API ciudades por provincia (alternativa)
+// API alternativa
 Route::get('/api/provinces/{province}/cities', function ($provinceId) {
     return City::where('province_id', $provinceId)->get();
 });
